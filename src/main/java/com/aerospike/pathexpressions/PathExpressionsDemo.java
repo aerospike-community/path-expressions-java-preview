@@ -28,12 +28,15 @@ import com.aerospike.client.operation.SelectFlags;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
+import com.aerospike.util.Debug;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PathExpressionsDemo {
-  public static void main(String[] args) throws IOException {
+
+@SuppressWarnings("resource")
+public static void main(String[] args) throws IOException {
     String json = new String(Files.readAllBytes(Paths.get("./data/inventory_sample.json")));
 
     ObjectMapper mapper = new ObjectMapper();
@@ -65,7 +68,7 @@ public class PathExpressionsDemo {
       System.out.println("Retrieved inventory data:");
       System.out.println(jsonOutput);
     } else {
-      throw new RuntimeException("No record found");
+        throw new RuntimeException("No record found");
     }
 
     // Product-level filter: featured == true
@@ -93,7 +96,7 @@ public class PathExpressionsDemo {
             CTX.mapKey(Value.get("variants")),
             CTX.allChildrenWithFilter(filterOnVariantInventory)));
 
-    System.out.println("Featured products with variants having inventory > 0: " + readResult.getMap(binName));
+    System.out.println("Featured products with variants having inventory > 0: " + Debug.print(readResult.getMap(binName)));
 
     // Fetch all the keys that start with 10000.*
     Exp filterOnKey = Exp.regexCompare("10000.*", 0, Exp.loopVarString(LoopVarPart.MAP_KEY));
@@ -104,7 +107,7 @@ public class PathExpressionsDemo {
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
-    System.out.println("Regex based pattern filter items keys only: " + regexMatchingTree.getMap(binName));
+    System.out.println("Regex based pattern filter items keys only: " + Debug.print(regexMatchingTree.getMap(binName)));
 
     // Operation
     Record regexList = client.operate(null, key,
@@ -112,7 +115,7 @@ public class PathExpressionsDemo {
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
-    System.out.println("Regex based pattern filter items keys only: " + regexList.getList(binName));
+    System.out.println("Regex based pattern filter items keys only: " + Debug.print(regexList.getList(binName)));
 
     // Combine multiple filters
     Exp filterOnCheapInStock = Exp.and(
@@ -133,7 +136,7 @@ public class PathExpressionsDemo {
             CTX.mapKey(Value.get("variants")),
             CTX.allChildrenWithFilter(filterOnCheapInStock)));
 
-    System.out.println("Cheap in-stock items: " + cheapInStock.getMap(binName));
+    System.out.println("Cheap in-stock items: " + Debug.print(cheapInStock.getMap(binName)));
 
     // Modify
     String updatedBin = "updatedBinName";
@@ -162,7 +165,7 @@ public class PathExpressionsDemo {
 
     // Read back the updated record
     Record updatedRecord = client.get(null, key);
-    System.out.println("Updated records: " + updatedRecord.getMap(updatedBin));
+    System.out.println("Updated records: " + Debug.print(updatedRecord.getMap(updatedBin)));
 
     // NO_FAIL
     // Append bad record
@@ -178,15 +181,6 @@ public class PathExpressionsDemo {
     WritePolicy writePolicy = new WritePolicy();
     writePolicy.recordExistsAction = RecordExistsAction.UPDATE_ONLY;
     client.put(null, key, new Bin(binName, inventory));
-
-    // Record testData = client.get(null, key);
-    // if (retrievedRecord != null) {
-    // Object inventoryData = testData.getValue(binName);
-    // String jsonOutput =
-    // mapper.writerWithDefaultPrettyPrinter().writeValueAsString(inventoryData);
-    // System.out.println("Retrieved updated inventory data: ");
-    // System.out.println(jsonOutput);
-    // }
 
     try {
       client.operate(null, key,
@@ -207,7 +201,7 @@ public class PathExpressionsDemo {
             CTX.allChildrenWithFilter(filterOnVariantInventory)));
 
     System.out.println("Read failed as expected due to bad record add NO_FAIL flag. NO_FAIL result: "
-        + noFailResponse.getValue(binName));
+        + Debug.print(noFailResponse.getValue(binName)));
 
     client.close();
   }
