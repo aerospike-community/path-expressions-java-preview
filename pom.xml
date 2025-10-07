@@ -94,7 +94,7 @@
                   <archive>
                       <manifest>
                           <addClasspath>true</addClasspath>
-                          <mainClass>com.aerospike.App</mainClass>
+                          <mainClass>com.aerospike.pathexpressions.PathExpressionsDemo</mainClass>
                       </manifest>
                   </archive>
                   <descriptorRefs>
