@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PathExpressionsDemo {
   public static void main(String[] args) throws IOException {
-    String json = new String(Files.readAllBytes(Paths.get("/Users/mkaracic/workfolder/stuff/inventory_sample.json")));
+    String json = new String(Files.readAllBytes(Paths.get("./data/inventory_sample.json")));
 
     ObjectMapper mapper = new ObjectMapper();
 
