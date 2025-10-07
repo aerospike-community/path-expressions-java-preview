@@ -133,6 +133,7 @@ public static void main(String[] args) throws IOException {
     Record cheapInStock = client.operate(null, key,
         CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag,
             CTX.allChildren(),
+            CTX.allChildren(),
             CTX.mapKey(Value.get("variants")),
             CTX.allChildrenWithFilter(filterOnCheapInStock)));
 
