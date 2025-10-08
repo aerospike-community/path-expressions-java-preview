@@ -31,8 +31,6 @@ For this demo, let’s assume we want to identify products to promote on the hom
 
 ### Step 0. Download pre-requisites and build demo application
 
-> [insert how to use applicable server and client versions that support Path Expressions - @Mirza Karacic can you help fill this out?]
-
 Clone the repository:
 
 ```bash
@@ -454,7 +452,63 @@ System.out.println("Updated records: " + updatedRecord.getMap(updatedBin));
 Expected output (diff excerpt):
 
 ```json
-{inventory={10000001={name=Classic T-Shirt, description=A lightweight cotton T-shirt perfect for everyday wear., featured=true, variants={2001=110, 2003=60, 2002={size=M, price=25, quantity=0}}, category=clothing}, 50000009={name=Smart TV, description=Ultra HD smart television with built-in streaming apps., featured=true, variants=[70, 40], category=electronics}, 10000002={name=Casual Polo Shirt, description=A soft polo shirt suitable for work or leisure., featured=false, variants={2005={size=XL, price=32, quantity=10}, 2004={size=M, price=30, quantity=20}}, category=clothing}, 50000006={name=Laptop Pro 14, description=High-performance laptop designed for professionals., featured=true, variants={3001={price=599, spec=8GB RAM, quantity=0}}, category=electronics}}}
+{
+  "inventory": {
+    "10000001": {
+      "name": "Classic T-Shirt",
+      "description": "A lightweight cotton T-shirt perfect for everyday wear.",
+      "featured": true,
+      "variants": {
+        "2001": 110,
+        "2003": 60,
+        "2002": {
+          "size": "M",
+          "price": 25,
+          "quantity": 0
+        }
+      },
+      "category": "clothing"
+    },
+    "50000009": {
+      "name": "Smart TV",
+      "description": "Ultra HD smart television with built-in streaming apps.",
+      "featured": true,
+      "variants": [70, 40],
+      "category": "electronics"
+    },
+    "10000002": {
+      "name": "Casual Polo Shirt",
+      "description": "A soft polo shirt suitable for work or leisure.",
+      "featured": false,
+      "variants": {
+        "2005": {
+          "size": "XL",
+          "price": 32,
+          "quantity": 10
+        },
+        "2004": {
+          "size": "M",
+          "price": 30,
+          "quantity": 20
+        }
+      },
+      "category": "clothing"
+    },
+    "50000006": {
+      "name": "Laptop Pro 14",
+      "description": "High-performance laptop designed for professionals.",
+      "featured": true,
+      "variants": {
+        "3001": {
+          "price": 599,
+          "spec": "8GB RAM",
+          "quantity": 0
+        }
+      },
+      "category": "electronics"
+    }
+  }
+}
 ```
 
 *   ✅ Inventories for in-stock variants are incremented directly on the server.
@@ -497,7 +551,44 @@ Expected output:
 Same as the corresponding non-NO_FAIL query, minus any contribution from malformed_product:
 
 ```json
-{inventory={10000001={variants={2001={size=S, price=25, quantity=100}, 2003={size=L, price=27, quantity=50}}}, 50000009={variants=[{quantity=60, sku=3007, price=199, spec=1080p}, {quantity=30, sku=3008, price=399, spec=4K}]}, 50000006={variants={}}}, 10000003={}}
+{
+  "inventory": {
+    "10000001": {
+      "variants": {
+        "2001": {
+          "size": "S",
+          "price": 25,
+          "quantity": 100
+        },
+        "2003": {
+          "size": "L",
+          "price": 27,
+          "quantity": 50
+        }
+      }
+    },
+    "50000009": {
+      "variants": [
+        {
+          "quantity": 60,
+          "sku": 3007,
+          "price": 199,
+          "spec": "1080p"
+        },
+        {
+          "quantity": 30,
+          "sku": 3008,
+          "price": 399,
+          "spec": "4K"
+        }
+      ]
+    },
+    "50000006": {
+      "variants": {}
+    }
+  },
+  "10000003": {}
+}
 ```
 
 *   ✅ Item `10000003` skipped silently because `variants` was a string.
