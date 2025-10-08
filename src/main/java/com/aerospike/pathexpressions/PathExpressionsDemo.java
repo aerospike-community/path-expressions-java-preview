@@ -65,7 +65,9 @@ public static void main(String[] args) throws IOException {
     if (retrievedRecord != null) {
       Object inventoryData = retrievedRecord.getValue(binName);
       String jsonOutput = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(inventoryData);
-      System.out.println("Retrieved inventory data:");
+      System.out.println("\n" + "=".repeat(80));
+      System.out.println("STEP 1: Retrieved inventory data");
+      System.out.println("=".repeat(80));
       System.out.println(jsonOutput);
     } else {
         throw new RuntimeException("No record found");
@@ -96,9 +98,15 @@ public static void main(String[] args) throws IOException {
             CTX.mapKey(Value.get("variants")),
             CTX.allChildrenWithFilter(filterOnVariantInventory)));
 
-    System.out.println("Featured products with variants having inventory > 0: " + Debug.print(readResult.getMap(binName)));
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("MAIN EXAMPLE (Steps 2-4): Featured products with variants having inventory > 0");
+    System.out.println("=".repeat(80));
+    System.out.println(Debug.print(readResult.getMap(binName)));
 
     // Fetch all the keys that start with 10000.*
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("ADVANCED EXAMPLE 1: Using LoopVar with regex filter on map keys");
+    System.out.println("=".repeat(80));
     Exp filterOnKey = Exp.regexCompare("10000.*", 0, Exp.loopVarString(LoopVarPart.MAP_KEY));
 
     // Operation
@@ -107,17 +115,23 @@ public static void main(String[] args) throws IOException {
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
-    System.out.println("Regex based pattern filter items keys only: " + Debug.print(regexMatchingTree.getMap(binName)));
+    System.out.println("Result (MATCHING_TREE): " + Debug.print(regexMatchingTree.getMap(binName)));
 
     // Operation
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("ADVANCED EXAMPLE 2: Alternate return modes with SelectFlags");
+    System.out.println("=".repeat(80));
     Record regexList = client.operate(null, key,
         CDTOperation.cdtSelect(binName, SelectFlags.MAP_KEYS.flag,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
-    System.out.println("Regex based pattern filter items keys only: " + Debug.print(regexList.getList(binName)));
+    System.out.println("Result (MAP_KEYS only): " + Debug.print(regexList.getList(binName)));
 
     // Combine multiple filters
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("ADVANCED EXAMPLE 3: Combining multiple filters (price < 50 AND quantity > 0)");
+    System.out.println("=".repeat(80));
     Exp filterOnCheapInStock = Exp.and(
         Exp.gt(
             MapExp.getByKey(MapReturnType.VALUE, Exp.Type.INT,
@@ -137,9 +151,12 @@ public static void main(String[] args) throws IOException {
             CTX.mapKey(Value.get("variants")),
             CTX.allChildrenWithFilter(filterOnCheapInStock)));
 
-    System.out.println("Cheap in-stock items: " + Debug.print(cheapInStock.getMap(binName)));
+    System.out.println("Cheap in-stock items (across all products): " + Debug.print(cheapInStock.getMap(binName)));
 
     // Modify
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("ADVANCED EXAMPLE 4: Server-side modification (incrementing quantities)");
+    System.out.println("=".repeat(80));
     String updatedBin = "updatedBinName";
 
     // Increment quantity by 10
@@ -166,9 +183,12 @@ public static void main(String[] args) throws IOException {
 
     // Read back the updated record
     Record updatedRecord = client.get(null, key);
-    System.out.println("Updated records: " + Debug.print(updatedRecord.getMap(updatedBin)));
+    System.out.println("Updated records (quantities incremented by 10): " + Debug.print(updatedRecord.getMap(updatedBin)));
 
     // NO_FAIL
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("ADVANCED EXAMPLE 5: NO_FAIL flag to tolerate malformed data");
+    System.out.println("=".repeat(80));
     // Append bad record
     Map<String, Object> badRecordDetails = new HashMap<>();
     badRecordDetails.put("name", "Bad Product");
@@ -191,7 +211,7 @@ public static void main(String[] args) throws IOException {
               CTX.mapKey(Value.get("variants")),
               CTX.allChildrenWithFilter(filterOnVariantInventory)));
     } catch (AerospikeException e) {
-      System.out.println("Read failed as expected due to bad record");
+      System.out.println("❌ Operation failed as expected (malformed data without NO_FAIL flag)");
     }
 
     Record noFailResponse = client.operate(null, key,
@@ -201,8 +221,8 @@ public static void main(String[] args) throws IOException {
             CTX.mapKey(Value.get("variants")),
             CTX.allChildrenWithFilter(filterOnVariantInventory)));
 
-    System.out.println("Read failed as expected due to bad record add NO_FAIL flag. NO_FAIL result: "
-        + Debug.print(noFailResponse.getValue(binName)));
+    System.out.println("✅ Operation succeeded with NO_FAIL flag:");
+    System.out.println(Debug.print(noFailResponse.getValue(binName)));
 
     client.close();
   }
