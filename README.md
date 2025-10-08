@@ -623,41 +623,75 @@ Same as the corresponding non-NO_FAIL query, minus any contribution from malform
 
 ## API Specifications
 
-### `Operation.pathExpression(...)`
+### `CDTOperation.cdtSelect(...)`
 
 **Purpose**: Read/select nested elements from Maps and Lists using contexts (CTX).
 
 **Inputs**:
 
 *   `binName` (String) — name of the CDT bin.
-*   `selectFlags` (SelectFlags) — controls what is returned (`MATCHING_TREE`, `VALUES`, `MAP_KEYS`, `MAP_KEY_VALUES`, `NO_FAIL`).
+*   `selectFlags` (int) — controls what is returned. Use `.flag` property from `SelectFlags` enum values (`MATCHING_TREE`, `VALUES`, `MAP_KEYS`, `MAP_KEY_VALUES`, `NO_FAIL`). Flags can be combined with bitwise OR (|).
 *   `CTX...` — one or more contexts defining traversal and filters.
 
 **Returns**: `Operation` (executed via `client.operate` to return a `Record`).
 
-### `Operation.modifyCdt(...)`
+**Example**:
+```java
+Record result = client.operate(null, key,
+    CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag,
+        CTX.allChildren(),
+        CTX.allChildrenWithFilter(filterExpression),
+        CTX.mapKey(Value.get("variants"))));
+```
+
+### `CDTExp.cdtModify(...)` with `ExpOperation.write(...)`
 
 **Purpose**: Update nested elements in Maps or Lists directly on the server.
 
-**Inputs**:
+**Pattern**: Create a modification expression using `CDTExp.cdtModify()`, wrap it with `Exp.build()`, then execute via `ExpOperation.write()`.
 
-*   `binName` (String) — name of the CDT bin.
+**Inputs for `CDTExp.cdtModify()`**:
+
+*   `returnType` (Exp.Type) — the type of the returned value (e.g., `Exp.Type.MAP`).
+*   `selectFlags` (int) — controls selection behavior. Use `.flag` property from `SelectFlags` enum.
 *   `modifyingExpression` (Exp) — expression applied to each selected element.
+*   `binExpression` (Exp) — the bin to modify (e.g., `Exp.mapBin(binName)`).
 *   `CTX...` — one or more contexts defining traversal and filters.
 
-**Returns**: `Operation` (executed via `client.operate` to return an updated `Record`).
+**Returns**: `Expression` (wrapped in `Exp.build()`) which is then used with `ExpOperation.write()`.
+
+**Example**:
+```java
+Exp incrementExp = Exp.add(
+    MapExp.getByKey(MapReturnType.VALUE, Type.INT,
+        Exp.val("quantity"),
+        Exp.loopVarMap(LoopVarPart.VALUE)),
+    Exp.val(10));
+
+Expression modifyExpression = Exp.build(
+    CDTExp.cdtModify(
+        Exp.Type.MAP,
+        SelectFlags.MATCHING_TREE.flag,
+        incrementExp,
+        Exp.mapBin(binName),
+        CTX.allChildren(),
+        CTX.allChildrenWithFilter(filterExpression)));
+
+client.operate(null, key,
+    ExpOperation.write(outputBinName, modifyExpression, ExpWriteFlags.DEFAULT));
+```
 
 ### Loop Variable Expressions
 
 Exposes metadata of the current element (key, value, or index) during traversal.
 
-*   `Exp.mapLoopVar(LoopVarPart field)`
-*   `Exp.listLoopVar(LoopVarPart field)`
-*   `Exp.stringLoopVar(LoopVarPart field)`
-*   `Exp.intLoopVar(LoopVarPart field)`
-*   `Exp.floatLoopVar(LoopVarPart field)`
-*   `Exp.boolLoopVar(LoopVarPart field)`
-*   `Exp.blobLoopVar(LoopVarPart field)`
+*   `Exp.loopVarMap(LoopVarPart field)`
+*   `Exp.loopVarList(LoopVarPart field)`
+*   `Exp.loopVarString(LoopVarPart field)`
+*   `Exp.loopVarInt(LoopVarPart field)`
+*   `Exp.loopVarFloat(LoopVarPart field)`
+*   `Exp.loopVarBool(LoopVarPart field)`
+*   `Exp.loopVarBlob(LoopVarPart field)`
 
 **Inputs**:
 
@@ -666,3 +700,16 @@ Exposes metadata of the current element (key, value, or index) during traversal.
 **Returns**:
 
 An `Exp` object usable inside filter or modifying expressions.
+
+**Example**:
+```java
+// Filter on map values
+Exp filterOnFeatured = Exp.eq(
+    MapExp.getByKey(MapReturnType.VALUE, Exp.Type.BOOL,
+        Exp.val("featured"),
+        Exp.loopVarMap(LoopVarPart.VALUE)),
+    Exp.val(true));
+
+// Filter on map keys with regex
+Exp filterOnKey = Exp.regexCompare("10000.*", 0, Exp.loopVarString(LoopVarPart.MAP_KEY));
+```
