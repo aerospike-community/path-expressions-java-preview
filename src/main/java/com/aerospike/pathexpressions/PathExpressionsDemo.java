@@ -92,7 +92,7 @@ public static void main(String[] args) throws IOException {
 
     // Operation
     Record readResult = client.operate(null, key,
-        CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag,
+        CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),
@@ -111,7 +111,7 @@ public static void main(String[] args) throws IOException {
 
     // Operation
     Record regexMatchingTree = client.operate(null, key,
-        CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag,
+        CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
@@ -122,7 +122,7 @@ public static void main(String[] args) throws IOException {
     System.out.println("ADVANCED EXAMPLE 2: Alternate return modes with SelectFlags");
     System.out.println("=".repeat(80));
     Record regexList = client.operate(null, key,
-        CDTOperation.cdtSelect(binName, SelectFlags.MAP_KEYS.flag,
+        CDTOperation.selectByPath(binName, SelectFlags.MAP_KEYS.flag,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnKey)));
 
@@ -145,7 +145,7 @@ public static void main(String[] args) throws IOException {
             Exp.val(50)));
 
     Record cheapInStock = client.operate(null, key,
-        CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag,
+        CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag,
             CTX.allChildren(),
             CTX.allChildren(),
             CTX.mapKey(Value.get("variants")),
@@ -167,7 +167,7 @@ public static void main(String[] args) throws IOException {
         Exp.val(10));
 
     Expression modifyExpression = Exp.build(
-        CDTExp.cdtModify(
+        CDTExp.modifyByPath(
             Exp.Type.MAP,
             SelectFlags.MATCHING_TREE.flag,
             incrementExp,
@@ -205,7 +205,7 @@ public static void main(String[] args) throws IOException {
 
     try {
       client.operate(null, key,
-          CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag,
+          CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag,
               CTX.allChildren(),
               CTX.allChildrenWithFilter(filterOnFeatured),
               CTX.mapKey(Value.get("variants")),
@@ -215,7 +215,7 @@ public static void main(String[] args) throws IOException {
     }
 
     Record noFailResponse = client.operate(null, key,
-        CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag | SelectFlags.NO_FAIL.flag,
+        CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag | SelectFlags.NO_FAIL.flag,
             CTX.allChildren(),
             CTX.allChildrenWithFilter(filterOnFeatured),
             CTX.mapKey(Value.get("variants")),

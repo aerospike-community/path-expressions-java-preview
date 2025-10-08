@@ -171,7 +171,7 @@ Now we combine the filters with traversal contexts:
 ```java
 // Operation
 Record record = client.operate(null, key,
-    CDTOperation.cdtSelect("inventory", SelectFlags.MATCHING_TREE.flag,
+    CDTOperation.selectByPath("inventory", SelectFlags.MATCHING_TREE.flag,
         CTX.allChildren(),                                   // dive into all products
         CTX.allChildrenWithFilter(filterOnFeatured),         // only featured products
         CTX.mapKey(Value.get("variants")),                   // navigate to variants
@@ -262,7 +262,7 @@ Exp filterOnKey =
 
 // Operation
 Record record = client.operate(null, key,
-    CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag,
+    CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -337,7 +337,7 @@ Exp filterOnKey =
 
 // Operation
 Record record = client.operate(null, key,
-    CDTOperation.cdtSelect(binName, SelectFlags.MAP_KEYS.flag,
+    CDTOperation.selectByPath(binName, SelectFlags.MAP_KEYS.flag,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnKey)
     )
@@ -379,7 +379,7 @@ Exp filterOnCheapInStock = Exp.and(
         Exp.val(50)));
 
 Record record = client.operate(null, key,
-    CDTOperation.cdtSelect("inventory", SelectFlags.MATCHING_TREE.flag,
+    CDTOperation.selectByPath("inventory", SelectFlags.MATCHING_TREE.flag,
         CTX.allChildren(),                              // Navigate into all products
         CTX.allChildren(),                              // Navigate deeper into product structure  
         CTX.mapKey(Value.get("variants")),              // Navigate to variants map/list
@@ -432,7 +432,7 @@ Exp incrementExp = Exp.add(
     Exp.val(10));
 
 Expression modifyExpression = Exp.build(
-    CDTExp.cdtModify(
+    CDTExp.modifyByPath(
         Exp.Type.MAP,
         SelectFlags.MATCHING_TREE.flag,
         incrementExp,
@@ -477,7 +477,7 @@ Because the dataset now includes `10000003` with `variants: "no variant"` (a str
 
 ```java
 Record noFailResponse = client.operate(null, key,
-    CDTOperation.cdtSelect(binName, SelectFlags.MATCHING_TREE.flag | SelectFlags.NO_FAIL.flag,
+    CDTOperation.selectByPath(binName, SelectFlags.MATCHING_TREE.flag | SelectFlags.NO_FAIL.flag,
         CTX.allChildren(),
         CTX.allChildrenWithFilter(filterOnFeatured),
         CTX.mapKey(Value.get("variants")),
