@@ -31,8 +31,6 @@ For this demo, let’s assume we want to identify products to promote on the hom
 
 ### Step 0. Download pre-requisites and build demo application
 
-> [insert how to use applicable server and client versions that support Path Expressions - @Mirza Karacic can you help fill this out?]
-
 Clone the repository:
 
 ```bash
