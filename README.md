@@ -350,7 +350,7 @@ Expected Output:
 [10000001, 10000002]
 ```
 
-*   ✅ Only the keys from SKU’s `10000001` and `10000001` are returned.
+*   ✅ Only the keys from SKU’s `10000001` and `10000002` are returned.
 *   ⚠️ Item `50000009`, Smart TV, has list-backed variants, so no map keys to return.
 
 ### 3. Combine multiple filters
